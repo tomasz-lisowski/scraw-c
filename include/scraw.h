@@ -16,12 +16,16 @@
 #include <winscard.h>
 typedef SCARDCONTEXT scraw_ctx_kt;
 typedef SCARDHANDLE scraw_card_kt;
-#endif
-#ifdef PAL_LNX
-#error Linux is not supported yet
-#endif
+#else
 #ifdef PAL_MAC
-#error macOS is not supported yet
+#warn macOS support was not tested but should work
+#endif
+
+/* Linux and macOS */
+#include <PCSC/winscard.h>
+#include <PCSC/wintypes.h>
+typedef SCARDCONTEXT scraw_ctx_kt;
+typedef SCARDHANDLE scraw_card_kt;
 #endif
 
 typedef struct scraw_raw_s
@@ -107,7 +111,9 @@ int32_t scraw_reader_next(scraw_st *const ctx, char const **const reader_name);
  * @brief Select a reader by name. If completes successfully, data can be sent
  * to the card.
  * @param ctx
- * @param reader_name Reader name to select. Must be null-terminated.
+ * @param reader_name Reader name to select. Must be null-terminated and the
+ * buffer must be allocated by the user (i.e. not pointing to a string returned
+ * by 'next').
  * @return 0 on success, -1 on failure.
  * @note A 'search' is not necessary before selecting if the name of the reader
  * is known.

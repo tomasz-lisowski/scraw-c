@@ -18,7 +18,14 @@ MAIN_AR_FLAGS:=-rcs
 ifeq ($(OS),Windows_NT)
 	MAIN_CC_FLAGS+=-lwinscard
 else
-	MAIN_CC_FLAGS+=
+	UNAME:=$(shell uname -s)
+	MAIN_CC_FLAGS+=-lpcsclite
+	ifeq ($(UNAME),Linux)
+        MAIN_CC_FLAGS+=-pthread -I/usr/include/PCSC
+    endif
+	ifeq ($(UNAME),Darwin)
+        MAIN_CC_FLAGS+=-framework PCSC
+	endif
 endif
 
 all:
