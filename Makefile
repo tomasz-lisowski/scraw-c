@@ -21,7 +21,7 @@ else
 	UNAME:=$(shell uname -s)
 	MAIN_CC_FLAGS+=-lpcsclite
 	ifeq ($(UNAME),Linux)
-        MAIN_CC_FLAGS+=-pthread -I/usr/include/PCSC
+        MAIN_CC_FLAGS+=$(shell pkg-config --cflags libpcsclite)
     endif
 	ifeq ($(UNAME),Darwin)
         MAIN_CC_FLAGS+=-framework PCSC
