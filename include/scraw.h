@@ -64,6 +64,7 @@ typedef enum scraw_proto_e
 
 typedef struct scraw_s
 {
+    int64_t errno; /* Store reason for failure. */
     scraw_ctx_kt ctx;
     scraw_card_kt card; /* Selected card. */
     scraw_proto_et card_proto;
@@ -75,7 +76,8 @@ typedef struct scraw_s
  * @brief Initialize the library context. This allows use of the library
  * functions.
  * @param ctx Pointer to a struct that will hold the context.
- * @return 0 on success, -1 on failure.
+ * @return 0 on success, -1 on failure and 'errno' in context is set to the
+ * reason.
  */
 int32_t scraw_init(scraw_st *const ctx);
 
@@ -83,29 +85,45 @@ int32_t scraw_init(scraw_st *const ctx);
  * @brief Deinitialize the library context. After it's complete, passing the
  * context to library functions may lead to undefined behavior.
  * @param ctx
- * @return 0 on success, -1 on failure.
+ * @return 0 on success, -1 on failure and 'errno' in context is set to the
+ * reason.
  */
 int32_t scraw_fini(scraw_st *const ctx);
 
 /**
- * @brief Retrieve an updated list of readers from the OS. This list is then
- * used when selecting a reader.
+ * @brief Retrieve an updated list of readers. This list is then used when
+ * selecting a reader.
  * @param ctx
- * @return 0 on success, -1 on failure.
+ * @return 0 on success, -1 on failure and 'errno' in context is set to the
+ * reason.
+ * @note This allocates memory that needs to be freed with a call to
+ * 'search_end' or or 'fini' after searching is done.
  */
-int32_t scraw_reader_search(scraw_st *const ctx);
+int32_t scraw_reader_search_begin(scraw_st *const ctx);
 
 /**
- * @brief Get the next reader in the list of readers. First call after a call to
- * 'search', this shall return the first reader (at index 0).
+ * @brief Calling this will indicate the user is done searching for readers and
+ * any memory allocated for searching can be freed.
+ * @param ctx
+ * @return 0 on success, -1 on failure and 'errno' in context is set to the
+ * reason.
+ */
+int32_t scraw_reader_search_end(scraw_st *const ctx);
+
+/**
+ * @brief Get the next reader in the list of readers obtained in search. First
+ * call after a call to 'search', this shall return the first reader (at index
+ * 0).
  * @param ctx
  * @param reader_name Where the pointer to the reader name will be written. It
  * will be null-terminated.
  * @return 0 on success, 1 if there are no more cards in the list, -1 on
- * failure.
+ * failure and 'errno' in context is set to the
+ * reason.
  * @note A call to 'search' is needed to be able to traverse the list again.
  */
-int32_t scraw_reader_next(scraw_st *const ctx, char const **const reader_name);
+int32_t scraw_reader_search_next(scraw_st *const ctx,
+                                 char const **const reader_name);
 
 /**
  * @brief Select a reader by name. If completes successfully, data can be sent
@@ -114,7 +132,8 @@ int32_t scraw_reader_next(scraw_st *const ctx, char const **const reader_name);
  * @param reader_name Reader name to select. Must be null-terminated and the
  * buffer must be allocated by the user (i.e. not pointing to a string returned
  * by 'next').
- * @return 0 on success, -1 on failure.
+ * @return 0 on success, -1 on failure and 'errno' in context is set to the
+ * reason.
  * @note A 'search' is not necessary before selecting if the name of the reader
  * is known.
  */
@@ -125,7 +144,8 @@ int32_t scraw_reader_select(scraw_st *const ctx, char const *const reader_name);
  * connection has already been established, a reconnect is performed.
  * @param ctx
  * @param proto What protocol to use to communicate with the card.
- * @return 0 on success, -1 on failure.
+ * @return 0 on success, -1 on failure and 'errno' in context is set to the
+ * reason.
  */
 int32_t scraw_card_connect(scraw_st *const ctx, scraw_proto_et const proto);
 
@@ -133,7 +153,8 @@ int32_t scraw_card_connect(scraw_st *const ctx, scraw_proto_et const proto);
  * @brief Close connection with the card. If completes successfully, any
  * operation involving the card will be undefined.
  * @param ctx
- * @return 0 on success, -1 on failure.
+ * @return 0 on success, -1 on failure and 'errno' in context is set to the
+ * reason.
  */
 int32_t scraw_card_disconnect(scraw_st *const ctx);
 
@@ -143,7 +164,8 @@ int32_t scraw_card_disconnect(scraw_st *const ctx);
  * @param ctx
  * @param data What to send to the card.
  * @param card_res Where the card reponse will be written.
- * @return 0 on success, 1 if card is not present, -1 on failure.
+ * @return 0 on success, 1 if card is not present, -1 on failure and 'errno' in
+ * context is set to the reason.
  */
 int32_t scraw_send(scraw_st *const ctx, scraw_raw_st *const data,
                    scraw_res_st *const card_res);

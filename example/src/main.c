@@ -13,13 +13,13 @@ int32_t main()
     char *reader_name_selected = NULL;
     if (scraw_init(&ctx) == 0)
     {
-        if (scraw_reader_search(&ctx) == 0)
+        if (scraw_reader_search_begin(&ctx) == 0)
         {
             bool reader_found = false;
             char const *reader_name_tmp = NULL;
             for (uint32_t reader_idx = 0U;; ++reader_idx)
             {
-                ret = scraw_reader_next(&ctx, &reader_name_tmp);
+                ret = scraw_reader_search_next(&ctx, &reader_name_tmp);
                 if (ret == 0)
                 {
                     printf("Reader %u: %s\n", reader_idx, reader_name_tmp);
@@ -58,6 +58,14 @@ int32_t main()
                     printf("Error while searching reader list\n");
                     break;
                 }
+            }
+            if (scraw_reader_search_end(&ctx) != 0)
+            {
+                printf("Failed to end search\n");
+                /**
+                 * This failure leads to a memory leak but is not critical so we
+                 * carry on.
+                 */
             }
             if (reader_found)
             {
