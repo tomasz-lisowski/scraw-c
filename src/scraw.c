@@ -201,13 +201,26 @@ int32_t scraw_card_connect(scraw_st *const ctx, scraw_proto_et const proto)
     LONG ret;
     if (ctx->card == 0)
     {
+        DWORD proto_active;
         ret = SCardConnect(
             ctx->ctx, ctx->reader_selected.name, SCARD_SHARE_SHARED,
             (uint32_t)((proto == SCRAW_PROTO_T0) * SCARD_PROTOCOL_T0) +
                 (uint32_t)((proto == SCRAW_PROTO_T1) * SCARD_PROTOCOL_T1),
-            &ctx->card, NULL);
+            &ctx->card, &proto_active);
         if (ret != SCARD_S_SUCCESS)
         {
+            return -1;
+        }
+        if ((proto == SCRAW_PROTO_T0 && proto_active != SCARD_PROTOCOL_T0) ||
+            (proto == SCRAW_PROTO_T1 && proto_active != SCARD_PROTOCOL_T1))
+        {
+            if (scraw_card_disconnect(ctx) != 0)
+            {
+                /**
+                 * Failed to cleanup the card connection. Not sure how to
+                 * recover at this point.
+                 */
+            }
             return -1;
         }
     }
