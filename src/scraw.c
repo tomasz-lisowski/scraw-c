@@ -317,7 +317,7 @@ int32_t scraw_send(scraw_st *const ctx, scraw_raw_st *const data,
     if (res_len > UINT32_MAX)
     {
         /**
-         * PC/SC doesn't even support extended APDUs so this should never
+         * PC/SC doesn't even support extended TPDUs so this should never
          * happen.
          */
         ctx->errno = SCARD_E_UNEXPECTED;

@@ -1,5 +1,5 @@
 # Smart Card Raw Comms Lib
-A very thin layer of abstraction on top of WinSCard on Windows and PCSC-lite on Linux and macOS that exposes a very simple interface for sending raw APDU messages to smart cards.
+A very thin layer of abstraction on top of WinSCard on Windows and PCSC-lite on Linux and macOS that exposes a very simple interface for sending raw TPDU messages to smart cards.
 
 ## Building
 1. Make sure to clone recursively so all dependencies are checked out.
