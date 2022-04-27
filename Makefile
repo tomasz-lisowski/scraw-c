@@ -27,9 +27,9 @@ else
 	endif
 endif
 
-all:
-	$(MAKE) -j all-conc
-all-conc: main
+all: main
+all-dbg: MAIN_CC_FLAGS+=-g -DDEBUG
+all-dbg: main
 
 # Create static library.
 main: $(DIR_BUILD) $(DIR_BUILD)/$(MAIN_NAME).$(EXT_LIB_STATIC)
@@ -48,4 +48,4 @@ $(DIR_BUILD):
 clean:
 	$(call pal_rmdir,$(DIR_BUILD))
 
-.PHONY: all all-conc main clean
+.PHONY: all all-dbg main clean
