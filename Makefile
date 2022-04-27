@@ -10,9 +10,8 @@ MAIN_NAME:=$(LIB_PREFIX)scraw
 MAIN_SRC:=$(wildcard $(DIR_SRC)/*.c)
 MAIN_OBJ:=$(MAIN_SRC:$(DIR_SRC)/%.c=$(DIR_BUILD)/%.o)
 MAIN_DEP:=$(MAIN_OBJ:%.o=%.d)
-MAIN_CC_FLAGS:=-g -Werror -Wno-unused-parameter -W -Wall -Wextra -Wconversion -Wshadow \
-	-fPIC -DDEBUG \
-	-I$(DIR_INCLUDE)
+MAIN_CC_FLAGS:=-Werror -Wno-unused-parameter -W -Wall -Wextra -Wconversion -Wshadow \
+	-fPIC -O2 -I$(DIR_INCLUDE)
 MAIN_AR_FLAGS:=-rcs
 
 ifeq ($(OS),Windows_NT)
