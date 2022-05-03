@@ -64,7 +64,7 @@ typedef enum scraw_proto_e
 
 typedef struct scraw_s
 {
-    int64_t errno; /* Store reason for failure. */
+    int64_t err_reason; /* Store reason for failure. */
     scraw_ctx_kt ctx;
     scraw_card_kt card; /* Selected card. */
     scraw_proto_et card_proto;

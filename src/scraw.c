@@ -17,7 +17,7 @@ static int32_t scraw_reader_list_free(scraw_st *const ctx)
     if (ctx->reader_list.names != NULL)
     {
         LONG ret = SCardFreeMemory(ctx->ctx, ctx->reader_list.names);
-        ctx->errno = ret;
+        ctx->err_reason = ret;
         if (ret != SCARD_S_SUCCESS)
         {
             return -1;
@@ -41,7 +41,7 @@ int32_t scraw_init(scraw_st *const ctx)
     SCARDCONTEXT ctx_win;
     /* Create a context. */
     LONG ret = SCardEstablishContext(SCARD_SCOPE_USER, NULL, NULL, &ctx_win);
-    ctx->errno = ret;
+    ctx->err_reason = ret;
     if (ret != SCARD_S_SUCCESS)
     {
         return -1;
@@ -61,7 +61,7 @@ int32_t scraw_fini(scraw_st *const ctx)
 {
     if (ctx->ctx == 0)
     {
-        ctx->errno = SCARD_E_INVALID_PARAMETER;
+        ctx->err_reason = SCARD_E_INVALID_PARAMETER;
         return -1;
     }
     LONG ret;
@@ -92,7 +92,7 @@ int32_t scraw_reader_search_begin(scraw_st *const ctx)
 {
     if (ctx->ctx == 0)
     {
-        ctx->errno = SCARD_E_INVALID_PARAMETER;
+        ctx->err_reason = SCARD_E_INVALID_PARAMETER;
         return -1;
     }
     memset(&ctx->reader_list, 0U, sizeof(scraw_reader_list_st));
@@ -149,7 +149,7 @@ int32_t scraw_reader_search_next(scraw_st *const ctx,
 {
     if (ctx->ctx == 0)
     {
-        ctx->errno = SCARD_E_INVALID_PARAMETER;
+        ctx->err_reason = SCARD_E_INVALID_PARAMETER;
         return -1;
     }
     if (ctx->reader_list.list_valid == false)
@@ -185,7 +185,7 @@ int32_t scraw_reader_select(scraw_st *const ctx, char const *const reader_name)
 {
     if (ctx->ctx == 0)
     {
-        ctx->errno = SCARD_E_INVALID_PARAMETER;
+        ctx->err_reason = SCARD_E_INVALID_PARAMETER;
         return -1;
     }
     ctx->reader_selected.name = reader_name;
@@ -196,13 +196,13 @@ int32_t scraw_card_connect(scraw_st *const ctx, scraw_proto_et const proto)
 {
     if (ctx->ctx == 0)
     {
-        ctx->errno = SCARD_E_INVALID_PARAMETER;
+        ctx->err_reason = SCARD_E_INVALID_PARAMETER;
         return -1;
     }
     if (ctx->reader_selected.name == NULL)
     {
         /* Reader was not selected. */
-        ctx->errno = SCARD_E_READER_UNAVAILABLE;
+        ctx->err_reason = SCARD_E_READER_UNAVAILABLE;
         return -1;
     }
     LONG ret;
@@ -214,7 +214,7 @@ int32_t scraw_card_connect(scraw_st *const ctx, scraw_proto_et const proto)
             (uint32_t)((proto == SCRAW_PROTO_T0) * SCARD_PROTOCOL_T0) +
                 (uint32_t)((proto == SCRAW_PROTO_T1) * SCARD_PROTOCOL_T1),
             &ctx->card, &proto_active);
-        ctx->errno = ret;
+        ctx->err_reason = ret;
         if (ret != SCARD_S_SUCCESS)
         {
             return -1;
@@ -240,7 +240,7 @@ int32_t scraw_card_connect(scraw_st *const ctx, scraw_proto_et const proto)
             (uint32_t)((proto == SCRAW_PROTO_T0) * SCARD_PROTOCOL_T0) +
                 (uint32_t)((proto == SCRAW_PROTO_T1) * SCARD_PROTOCOL_T1),
             SCARD_RESET_CARD, NULL);
-        ctx->errno = ret;
+        ctx->err_reason = ret;
         if (ret != SCARD_S_SUCCESS)
         {
             return -1;
@@ -254,17 +254,17 @@ int32_t scraw_card_disconnect(scraw_st *const ctx)
 {
     if (ctx->ctx == 0)
     {
-        ctx->errno = SCARD_E_INVALID_PARAMETER;
+        ctx->err_reason = SCARD_E_INVALID_PARAMETER;
         return -1;
     }
     if (ctx->card == 0)
     {
         /* Card was never connected. */
-        ctx->errno = SCARD_E_INVALID_HANDLE;
+        ctx->err_reason = SCARD_E_INVALID_HANDLE;
         return -1;
     }
     LONG ret = SCardDisconnect(ctx->card, SCARD_LEAVE_CARD);
-    ctx->errno = ret;
+    ctx->err_reason = ret;
     if (ret != SCARD_S_SUCCESS)
     {
         return -1;
@@ -277,13 +277,13 @@ int32_t scraw_send(scraw_st *const ctx, scraw_raw_st *const data,
 {
     if (ctx->ctx == 0)
     {
-        ctx->errno = SCARD_E_INVALID_PARAMETER;
+        ctx->err_reason = SCARD_E_INVALID_PARAMETER;
         return -1;
     }
     if (ctx->card == 0)
     {
         /* No connected card to send data to. */
-        ctx->errno = SCARD_E_INVALID_HANDLE;
+        ctx->err_reason = SCARD_E_INVALID_HANDLE;
         return 1;
     }
     LPCSCARD_IO_REQUEST pci;
@@ -302,7 +302,7 @@ int32_t scraw_send(scraw_st *const ctx, scraw_raw_st *const data,
     DWORD res_len = card_res->buf_len;
     LONG ret = SCardTransmit(ctx->card, pci, data->buf, data->len, NULL,
                              card_res->buf, &res_len);
-    ctx->errno = ret;
+    ctx->err_reason = ret;
     if (ret != SCARD_S_SUCCESS)
     {
         switch (ret)
@@ -320,7 +320,7 @@ int32_t scraw_send(scraw_st *const ctx, scraw_raw_st *const data,
          * PC/SC doesn't even support extended TPDUs so this should never
          * happen.
          */
-        ctx->errno = SCARD_E_UNEXPECTED;
+        ctx->err_reason = SCARD_E_UNEXPECTED;
         return -1;
     }
     card_res->res_len = (uint32_t)res_len; /* Safe cast due to bound check. */
