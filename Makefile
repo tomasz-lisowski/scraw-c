@@ -20,10 +20,10 @@ else
 	UNAME:=$(shell uname -s)
 	MAIN_CC_FLAGS+=-lpcsclite
 	ifeq ($(UNAME),Linux)
-        MAIN_CC_FLAGS+=$(shell pkg-config --cflags libpcsclite)
-    endif
+		MAIN_CC_FLAGS+=$(shell pkg-config --cflags libpcsclite)
+	endif
 	ifeq ($(UNAME),Darwin)
-        MAIN_CC_FLAGS+=-framework PCSC
+		MAIN_CC_FLAGS+=-framework PCSC
 	endif
 endif
 
