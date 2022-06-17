@@ -11,3 +11,10 @@ Take a look at the example to see how to use the library in a project. It basica
 The list of possible error codes that get saved to the context struct (as the 'error reason') can be found at:
 - https://docs.microsoft.com/en-us/windows/win32/secauthn/authentication-return-values
 - https://pcsclite.apdu.fr/api/group__ErrorCodes.html
+
+## Running
+1. On Linux, the PC/SC smart card daemon (`pcscd` package) needs to be present (and must be running). On Windows and macOS it will work out of the box.
+2. Compile as described above (and link with the application).
+3. Run the binary.
+
+If the `scraw` library fails to initialize (on Linux), then `pcscd` is most likely not working correctly.
